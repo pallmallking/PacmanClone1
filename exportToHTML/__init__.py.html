@@ -1,0 +1,200 @@
+<html>
+<head>
+<title>__init__.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #5f826b; font-style: italic;}
+.s1 { color: #bcbec4;}
+.s2 { color: #cf8e6d;}
+.s3 { color: #bcbec4;}
+.s4 { color: #7a7e85;}
+.s5 { color: #6aab73;}
+.s6 { color: #2aacb8;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+__init__.py</font>
+</center></td></tr></table>
+<pre><span class="s0">&quot;&quot;&quot;Rich text and beautiful formatting in the terminal.&quot;&quot;&quot;</span>
+
+<span class="s2">import </span><span class="s1">os</span>
+<span class="s2">from </span><span class="s1">typing </span><span class="s2">import </span><span class="s1">IO</span><span class="s3">, </span><span class="s1">TYPE_CHECKING</span><span class="s3">, </span><span class="s1">Any</span><span class="s3">, </span><span class="s1">Callable</span><span class="s3">, </span><span class="s1">Optional</span><span class="s3">, </span><span class="s1">Union</span>
+
+<span class="s2">from </span><span class="s3">.</span><span class="s1">_extension </span><span class="s2">import </span><span class="s1">load_ipython_extension  </span><span class="s4"># noqa: F401</span>
+
+<span class="s1">__all__ </span><span class="s3">= [</span><span class="s5">&quot;get_console&quot;</span><span class="s3">, </span><span class="s5">&quot;reconfigure&quot;</span><span class="s3">, </span><span class="s5">&quot;print&quot;</span><span class="s3">, </span><span class="s5">&quot;inspect&quot;</span><span class="s3">, </span><span class="s5">&quot;print_json&quot;</span><span class="s3">]</span>
+
+<span class="s2">if </span><span class="s1">TYPE_CHECKING</span><span class="s3">:</span>
+    <span class="s2">from </span><span class="s3">.</span><span class="s1">console </span><span class="s2">import </span><span class="s1">Console</span>
+
+<span class="s4"># Global console used by alternative print</span>
+<span class="s1">_console</span><span class="s3">: </span><span class="s1">Optional</span><span class="s3">[</span><span class="s5">&quot;Console&quot;</span><span class="s3">] = </span><span class="s2">None</span>
+
+<span class="s2">try</span><span class="s3">:</span>
+    <span class="s1">_IMPORT_CWD </span><span class="s3">= </span><span class="s1">os</span><span class="s3">.</span><span class="s1">path</span><span class="s3">.</span><span class="s1">abspath</span><span class="s3">(</span><span class="s1">os</span><span class="s3">.</span><span class="s1">getcwd</span><span class="s3">())</span>
+<span class="s2">except </span><span class="s1">FileNotFoundError</span><span class="s3">:</span>
+    <span class="s4"># Can happen if the cwd has been deleted</span>
+    <span class="s1">_IMPORT_CWD </span><span class="s3">= </span><span class="s5">&quot;&quot;</span>
+
+
+<span class="s2">def </span><span class="s1">get_console</span><span class="s3">() </span><span class="s1">-&gt; </span><span class="s5">&quot;Console&quot;</span><span class="s3">:</span>
+    <span class="s0">&quot;&quot;&quot;Get a global :class:`~rich.console.Console` instance. This function is used when Rich requires a Console, 
+    and hasn't been explicitly given one. 
+ 
+    Returns: 
+        Console: A console instance. 
+    &quot;&quot;&quot;</span>
+    <span class="s2">global </span><span class="s1">_console</span>
+    <span class="s2">if </span><span class="s1">_console </span><span class="s2">is None</span><span class="s3">:</span>
+        <span class="s2">from </span><span class="s3">.</span><span class="s1">console </span><span class="s2">import </span><span class="s1">Console</span>
+
+        <span class="s1">_console </span><span class="s3">= </span><span class="s1">Console</span><span class="s3">()</span>
+
+    <span class="s2">return </span><span class="s1">_console</span>
+
+
+<span class="s2">def </span><span class="s1">reconfigure</span><span class="s3">(*</span><span class="s1">args</span><span class="s3">: </span><span class="s1">Any</span><span class="s3">, **</span><span class="s1">kwargs</span><span class="s3">: </span><span class="s1">Any</span><span class="s3">) </span><span class="s1">-&gt; </span><span class="s2">None</span><span class="s3">:</span>
+    <span class="s0">&quot;&quot;&quot;Reconfigures the global console by replacing it with another. 
+ 
+    Args: 
+        *args (Any): Positional arguments for the replacement :class:`~rich.console.Console`. 
+        **kwargs (Any): Keyword arguments for the replacement :class:`~rich.console.Console`. 
+    &quot;&quot;&quot;</span>
+    <span class="s2">from </span><span class="s1">pip</span><span class="s3">.</span><span class="s1">_vendor</span><span class="s3">.</span><span class="s1">rich</span><span class="s3">.</span><span class="s1">console </span><span class="s2">import </span><span class="s1">Console</span>
+
+    <span class="s1">new_console </span><span class="s3">= </span><span class="s1">Console</span><span class="s3">(*</span><span class="s1">args</span><span class="s3">, **</span><span class="s1">kwargs</span><span class="s3">)</span>
+    <span class="s1">_console </span><span class="s3">= </span><span class="s1">get_console</span><span class="s3">()</span>
+    <span class="s1">_console</span><span class="s3">.</span><span class="s1">__dict__ </span><span class="s3">= </span><span class="s1">new_console</span><span class="s3">.</span><span class="s1">__dict__</span>
+
+
+<span class="s2">def </span><span class="s1">print</span><span class="s3">(</span>
+    <span class="s3">*</span><span class="s1">objects</span><span class="s3">: </span><span class="s1">Any</span><span class="s3">,</span>
+    <span class="s1">sep</span><span class="s3">: </span><span class="s1">str </span><span class="s3">= </span><span class="s5">&quot; &quot;</span><span class="s3">,</span>
+    <span class="s1">end</span><span class="s3">: </span><span class="s1">str </span><span class="s3">= </span><span class="s5">&quot;</span><span class="s2">\n</span><span class="s5">&quot;</span><span class="s3">,</span>
+    <span class="s1">file</span><span class="s3">: </span><span class="s1">Optional</span><span class="s3">[</span><span class="s1">IO</span><span class="s3">[</span><span class="s1">str</span><span class="s3">]] = </span><span class="s2">None</span><span class="s3">,</span>
+    <span class="s1">flush</span><span class="s3">: </span><span class="s1">bool </span><span class="s3">= </span><span class="s2">False</span><span class="s3">,</span>
+<span class="s3">) </span><span class="s1">-&gt; </span><span class="s2">None</span><span class="s3">:</span>
+    <span class="s0">r&quot;&quot;&quot;Print object(s) supplied via positional arguments. 
+    This function has an identical signature to the built-in print. 
+    For more advanced features, see the :class:`~rich.console.Console` class. 
+ 
+    Args: 
+        sep (str, optional): Separator between printed objects. Defaults to &quot; &quot;. 
+        end (str, optional): Character to write at end of output. Defaults to &quot;\\n&quot;. 
+        file (IO[str], optional): File to write to, or None for stdout. Defaults to None. 
+        flush (bool, optional): Has no effect as Rich always flushes output. Defaults to False. 
+ 
+    &quot;&quot;&quot;</span>
+    <span class="s2">from </span><span class="s3">.</span><span class="s1">console </span><span class="s2">import </span><span class="s1">Console</span>
+
+    <span class="s1">write_console </span><span class="s3">= </span><span class="s1">get_console</span><span class="s3">() </span><span class="s2">if </span><span class="s1">file </span><span class="s2">is None else </span><span class="s1">Console</span><span class="s3">(</span><span class="s1">file</span><span class="s3">=</span><span class="s1">file</span><span class="s3">)</span>
+    <span class="s2">return </span><span class="s1">write_console</span><span class="s3">.</span><span class="s1">print</span><span class="s3">(*</span><span class="s1">objects</span><span class="s3">, </span><span class="s1">sep</span><span class="s3">=</span><span class="s1">sep</span><span class="s3">, </span><span class="s1">end</span><span class="s3">=</span><span class="s1">end</span><span class="s3">)</span>
+
+
+<span class="s2">def </span><span class="s1">print_json</span><span class="s3">(</span>
+    <span class="s1">json</span><span class="s3">: </span><span class="s1">Optional</span><span class="s3">[</span><span class="s1">str</span><span class="s3">] = </span><span class="s2">None</span><span class="s3">,</span>
+    <span class="s3">*,</span>
+    <span class="s1">data</span><span class="s3">: </span><span class="s1">Any </span><span class="s3">= </span><span class="s2">None</span><span class="s3">,</span>
+    <span class="s1">indent</span><span class="s3">: </span><span class="s1">Union</span><span class="s3">[</span><span class="s2">None</span><span class="s3">, </span><span class="s1">int</span><span class="s3">, </span><span class="s1">str</span><span class="s3">] = </span><span class="s6">2</span><span class="s3">,</span>
+    <span class="s1">highlight</span><span class="s3">: </span><span class="s1">bool </span><span class="s3">= </span><span class="s2">True</span><span class="s3">,</span>
+    <span class="s1">skip_keys</span><span class="s3">: </span><span class="s1">bool </span><span class="s3">= </span><span class="s2">False</span><span class="s3">,</span>
+    <span class="s1">ensure_ascii</span><span class="s3">: </span><span class="s1">bool </span><span class="s3">= </span><span class="s2">False</span><span class="s3">,</span>
+    <span class="s1">check_circular</span><span class="s3">: </span><span class="s1">bool </span><span class="s3">= </span><span class="s2">True</span><span class="s3">,</span>
+    <span class="s1">allow_nan</span><span class="s3">: </span><span class="s1">bool </span><span class="s3">= </span><span class="s2">True</span><span class="s3">,</span>
+    <span class="s1">default</span><span class="s3">: </span><span class="s1">Optional</span><span class="s3">[</span><span class="s1">Callable</span><span class="s3">[[</span><span class="s1">Any</span><span class="s3">], </span><span class="s1">Any</span><span class="s3">]] = </span><span class="s2">None</span><span class="s3">,</span>
+    <span class="s1">sort_keys</span><span class="s3">: </span><span class="s1">bool </span><span class="s3">= </span><span class="s2">False</span><span class="s3">,</span>
+<span class="s3">) </span><span class="s1">-&gt; </span><span class="s2">None</span><span class="s3">:</span>
+    <span class="s0">&quot;&quot;&quot;Pretty prints JSON. Output will be valid JSON. 
+ 
+    Args: 
+        json (str): A string containing JSON. 
+        data (Any): If json is not supplied, then encode this data. 
+        indent (int, optional): Number of spaces to indent. Defaults to 2. 
+        highlight (bool, optional): Enable highlighting of output: Defaults to True. 
+        skip_keys (bool, optional): Skip keys not of a basic type. Defaults to False. 
+        ensure_ascii (bool, optional): Escape all non-ascii characters. Defaults to False. 
+        check_circular (bool, optional): Check for circular references. Defaults to True. 
+        allow_nan (bool, optional): Allow NaN and Infinity values. Defaults to True. 
+        default (Callable, optional): A callable that converts values that can not be encoded 
+            in to something that can be JSON encoded. Defaults to None. 
+        sort_keys (bool, optional): Sort dictionary keys. Defaults to False. 
+    &quot;&quot;&quot;</span>
+
+    <span class="s1">get_console</span><span class="s3">().</span><span class="s1">print_json</span><span class="s3">(</span>
+        <span class="s1">json</span><span class="s3">,</span>
+        <span class="s1">data</span><span class="s3">=</span><span class="s1">data</span><span class="s3">,</span>
+        <span class="s1">indent</span><span class="s3">=</span><span class="s1">indent</span><span class="s3">,</span>
+        <span class="s1">highlight</span><span class="s3">=</span><span class="s1">highlight</span><span class="s3">,</span>
+        <span class="s1">skip_keys</span><span class="s3">=</span><span class="s1">skip_keys</span><span class="s3">,</span>
+        <span class="s1">ensure_ascii</span><span class="s3">=</span><span class="s1">ensure_ascii</span><span class="s3">,</span>
+        <span class="s1">check_circular</span><span class="s3">=</span><span class="s1">check_circular</span><span class="s3">,</span>
+        <span class="s1">allow_nan</span><span class="s3">=</span><span class="s1">allow_nan</span><span class="s3">,</span>
+        <span class="s1">default</span><span class="s3">=</span><span class="s1">default</span><span class="s3">,</span>
+        <span class="s1">sort_keys</span><span class="s3">=</span><span class="s1">sort_keys</span><span class="s3">,</span>
+    <span class="s3">)</span>
+
+
+<span class="s2">def </span><span class="s1">inspect</span><span class="s3">(</span>
+    <span class="s1">obj</span><span class="s3">: </span><span class="s1">Any</span><span class="s3">,</span>
+    <span class="s3">*,</span>
+    <span class="s1">console</span><span class="s3">: </span><span class="s1">Optional</span><span class="s3">[</span><span class="s5">&quot;Console&quot;</span><span class="s3">] = </span><span class="s2">None</span><span class="s3">,</span>
+    <span class="s1">title</span><span class="s3">: </span><span class="s1">Optional</span><span class="s3">[</span><span class="s1">str</span><span class="s3">] = </span><span class="s2">None</span><span class="s3">,</span>
+    <span class="s1">help</span><span class="s3">: </span><span class="s1">bool </span><span class="s3">= </span><span class="s2">False</span><span class="s3">,</span>
+    <span class="s1">methods</span><span class="s3">: </span><span class="s1">bool </span><span class="s3">= </span><span class="s2">False</span><span class="s3">,</span>
+    <span class="s1">docs</span><span class="s3">: </span><span class="s1">bool </span><span class="s3">= </span><span class="s2">True</span><span class="s3">,</span>
+    <span class="s1">private</span><span class="s3">: </span><span class="s1">bool </span><span class="s3">= </span><span class="s2">False</span><span class="s3">,</span>
+    <span class="s1">dunder</span><span class="s3">: </span><span class="s1">bool </span><span class="s3">= </span><span class="s2">False</span><span class="s3">,</span>
+    <span class="s1">sort</span><span class="s3">: </span><span class="s1">bool </span><span class="s3">= </span><span class="s2">True</span><span class="s3">,</span>
+    <span class="s1">all</span><span class="s3">: </span><span class="s1">bool </span><span class="s3">= </span><span class="s2">False</span><span class="s3">,</span>
+    <span class="s1">value</span><span class="s3">: </span><span class="s1">bool </span><span class="s3">= </span><span class="s2">True</span><span class="s3">,</span>
+<span class="s3">) </span><span class="s1">-&gt; </span><span class="s2">None</span><span class="s3">:</span>
+    <span class="s0">&quot;&quot;&quot;Inspect any Python object. 
+ 
+    * inspect(&lt;OBJECT&gt;) to see summarized info. 
+    * inspect(&lt;OBJECT&gt;, methods=True) to see methods. 
+    * inspect(&lt;OBJECT&gt;, help=True) to see full (non-abbreviated) help. 
+    * inspect(&lt;OBJECT&gt;, private=True) to see private attributes (single underscore). 
+    * inspect(&lt;OBJECT&gt;, dunder=True) to see attributes beginning with double underscore. 
+    * inspect(&lt;OBJECT&gt;, all=True) to see all attributes. 
+ 
+    Args: 
+        obj (Any): An object to inspect. 
+        title (str, optional): Title to display over inspect result, or None use type. Defaults to None. 
+        help (bool, optional): Show full help text rather than just first paragraph. Defaults to False. 
+        methods (bool, optional): Enable inspection of callables. Defaults to False. 
+        docs (bool, optional): Also render doc strings. Defaults to True. 
+        private (bool, optional): Show private attributes (beginning with underscore). Defaults to False. 
+        dunder (bool, optional): Show attributes starting with double underscore. Defaults to False. 
+        sort (bool, optional): Sort attributes alphabetically. Defaults to True. 
+        all (bool, optional): Show all attributes. Defaults to False. 
+        value (bool, optional): Pretty print value. Defaults to True. 
+    &quot;&quot;&quot;</span>
+    <span class="s1">_console </span><span class="s3">= </span><span class="s1">console </span><span class="s2">or </span><span class="s1">get_console</span><span class="s3">()</span>
+    <span class="s2">from </span><span class="s1">pip</span><span class="s3">.</span><span class="s1">_vendor</span><span class="s3">.</span><span class="s1">rich</span><span class="s3">.</span><span class="s1">_inspect </span><span class="s2">import </span><span class="s1">Inspect</span>
+
+    <span class="s4"># Special case for inspect(inspect)</span>
+    <span class="s1">is_inspect </span><span class="s3">= </span><span class="s1">obj </span><span class="s2">is </span><span class="s1">inspect</span>
+
+    <span class="s1">_inspect </span><span class="s3">= </span><span class="s1">Inspect</span><span class="s3">(</span>
+        <span class="s1">obj</span><span class="s3">,</span>
+        <span class="s1">title</span><span class="s3">=</span><span class="s1">title</span><span class="s3">,</span>
+        <span class="s1">help</span><span class="s3">=</span><span class="s1">is_inspect </span><span class="s2">or </span><span class="s1">help</span><span class="s3">,</span>
+        <span class="s1">methods</span><span class="s3">=</span><span class="s1">is_inspect </span><span class="s2">or </span><span class="s1">methods</span><span class="s3">,</span>
+        <span class="s1">docs</span><span class="s3">=</span><span class="s1">is_inspect </span><span class="s2">or </span><span class="s1">docs</span><span class="s3">,</span>
+        <span class="s1">private</span><span class="s3">=</span><span class="s1">private</span><span class="s3">,</span>
+        <span class="s1">dunder</span><span class="s3">=</span><span class="s1">dunder</span><span class="s3">,</span>
+        <span class="s1">sort</span><span class="s3">=</span><span class="s1">sort</span><span class="s3">,</span>
+        <span class="s1">all</span><span class="s3">=</span><span class="s1">all</span><span class="s3">,</span>
+        <span class="s1">value</span><span class="s3">=</span><span class="s1">value</span><span class="s3">,</span>
+    <span class="s3">)</span>
+    <span class="s1">_console</span><span class="s3">.</span><span class="s1">print</span><span class="s3">(</span><span class="s1">_inspect</span><span class="s3">)</span>
+
+
+<span class="s2">if </span><span class="s1">__name__ </span><span class="s3">== </span><span class="s5">&quot;__main__&quot;</span><span class="s3">:  </span><span class="s4"># pragma: no cover</span>
+    <span class="s1">print</span><span class="s3">(</span><span class="s5">&quot;Hello, **World**&quot;</span><span class="s3">)</span>
+</pre>
+</body>
+</html>

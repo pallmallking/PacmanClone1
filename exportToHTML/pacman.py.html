@@ -1,0 +1,240 @@
+<html>
+<head>
+<title>pacman.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #7a7e85;}
+.s1 { color: #bcbec4;}
+.s2 { color: #cf8e6d;}
+.s3 { color: #bcbec4;}
+.s4 { color: #2aacb8;}
+.s5 { color: #6aab73;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+pacman.py</font>
+</center></td></tr></table>
+<pre><span class="s0"># pacman_game.py</span>
+
+<span class="s2">import </span><span class="s1">pygame</span>
+<span class="s2">import </span><span class="s1">random</span>
+<span class="s2">import </span><span class="s1">sys</span>
+
+<span class="s0"># Constants</span>
+<span class="s1">WIDTH</span><span class="s3">, </span><span class="s1">HEIGHT </span><span class="s3">= </span><span class="s4">560</span><span class="s3">, </span><span class="s4">620</span>
+<span class="s1">TILE_SIZE </span><span class="s3">= </span><span class="s4">20</span>
+<span class="s1">FPS </span><span class="s3">= </span><span class="s4">10</span>
+
+<span class="s0"># Colors</span>
+<span class="s1">BLACK </span><span class="s3">= (</span><span class="s4">0</span><span class="s3">, </span><span class="s4">0</span><span class="s3">, </span><span class="s4">0</span><span class="s3">)</span>
+<span class="s1">YELLOW </span><span class="s3">= (</span><span class="s4">255</span><span class="s3">, </span><span class="s4">255</span><span class="s3">, </span><span class="s4">0</span><span class="s3">)</span>
+<span class="s1">BLUE </span><span class="s3">= (</span><span class="s4">0</span><span class="s3">, </span><span class="s4">0</span><span class="s3">, </span><span class="s4">255</span><span class="s3">)</span>
+<span class="s1">WHITE </span><span class="s3">= (</span><span class="s4">255</span><span class="s3">, </span><span class="s4">255</span><span class="s3">, </span><span class="s4">255</span><span class="s3">)</span>
+<span class="s1">RED </span><span class="s3">= (</span><span class="s4">255</span><span class="s3">, </span><span class="s4">0</span><span class="s3">, </span><span class="s4">0</span><span class="s3">)</span>
+<span class="s1">GREEN </span><span class="s3">= (</span><span class="s4">0</span><span class="s3">, </span><span class="s4">255</span><span class="s3">, </span><span class="s4">0</span><span class="s3">)</span>
+<span class="s1">ORANGE </span><span class="s3">= (</span><span class="s4">255</span><span class="s3">, </span><span class="s4">165</span><span class="s3">, </span><span class="s4">0</span><span class="s3">)</span>
+
+<span class="s0"># Maze (1 = wall, 0 = path)</span>
+<span class="s1">MAZE </span><span class="s3">= [</span>
+    <span class="s5">&quot;11111111111111111111&quot;</span><span class="s3">,</span>
+    <span class="s5">&quot;10000000001100000001&quot;</span><span class="s3">,</span>
+    <span class="s5">&quot;10111111101101111101&quot;</span><span class="s3">,</span>
+    <span class="s5">&quot;10100000100001000001&quot;</span><span class="s3">,</span>
+    <span class="s5">&quot;10101111111101111001&quot;</span><span class="s3">,</span>
+    <span class="s5">&quot;10100010000001000001&quot;</span><span class="s3">,</span>
+    <span class="s5">&quot;10111110111101011101&quot;</span><span class="s3">,</span>
+    <span class="s5">&quot;10000000100000000001&quot;</span><span class="s3">,</span>
+    <span class="s5">&quot;11111111111111111111&quot;</span>
+<span class="s3">]</span>
+
+<span class="s2">class </span><span class="s1">Player</span><span class="s3">:</span>
+    <span class="s2">def </span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">):</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">start_x </span><span class="s3">= </span><span class="s1">x</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">start_y </span><span class="s3">= </span><span class="s1">y</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">rect </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">(</span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">, </span><span class="s1">TILE_SIZE</span><span class="s3">, </span><span class="s1">TILE_SIZE</span><span class="s3">)</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">dx </span><span class="s3">= </span><span class="s1">TILE_SIZE</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">dy </span><span class="s3">= </span><span class="s4">0</span>
+
+    <span class="s2">def </span><span class="s1">reset</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">rect</span><span class="s3">.</span><span class="s1">x </span><span class="s3">= </span><span class="s1">self</span><span class="s3">.</span><span class="s1">start_x</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">rect</span><span class="s3">.</span><span class="s1">y </span><span class="s3">= </span><span class="s1">self</span><span class="s3">.</span><span class="s1">start_y</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">dx </span><span class="s3">= </span><span class="s1">TILE_SIZE</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">dy </span><span class="s3">= </span><span class="s4">0</span>
+
+    <span class="s2">def </span><span class="s1">move</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">maze</span><span class="s3">):</span>
+        <span class="s1">new_rect </span><span class="s3">= </span><span class="s1">self</span><span class="s3">.</span><span class="s1">rect</span><span class="s3">.</span><span class="s1">move</span><span class="s3">(</span><span class="s1">self</span><span class="s3">.</span><span class="s1">dx</span><span class="s3">, </span><span class="s1">self</span><span class="s3">.</span><span class="s1">dy</span><span class="s3">)</span>
+        <span class="s2">if not </span><span class="s1">self</span><span class="s3">.</span><span class="s1">collides_with_walls</span><span class="s3">(</span><span class="s1">new_rect</span><span class="s3">, </span><span class="s1">maze</span><span class="s3">):</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">rect </span><span class="s3">= </span><span class="s1">new_rect</span>
+
+    <span class="s2">def </span><span class="s1">collides_with_walls</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">rect</span><span class="s3">, </span><span class="s1">maze</span><span class="s3">):</span>
+        <span class="s2">for </span><span class="s1">row_index</span><span class="s3">, </span><span class="s1">row </span><span class="s2">in </span><span class="s1">enumerate</span><span class="s3">(</span><span class="s1">maze</span><span class="s3">):</span>
+            <span class="s2">for </span><span class="s1">col_index</span><span class="s3">, </span><span class="s1">cell </span><span class="s2">in </span><span class="s1">enumerate</span><span class="s3">(</span><span class="s1">row</span><span class="s3">):</span>
+                <span class="s2">if </span><span class="s1">cell </span><span class="s3">== </span><span class="s5">&quot;1&quot;</span><span class="s3">:</span>
+                    <span class="s1">wall_rect </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">(</span><span class="s1">col_index </span><span class="s3">* </span><span class="s1">TILE_SIZE</span><span class="s3">, </span><span class="s1">row_index </span><span class="s3">* </span><span class="s1">TILE_SIZE</span><span class="s3">, </span><span class="s1">TILE_SIZE</span><span class="s3">, </span><span class="s1">TILE_SIZE</span><span class="s3">)</span>
+                    <span class="s2">if </span><span class="s1">rect</span><span class="s3">.</span><span class="s1">colliderect</span><span class="s3">(</span><span class="s1">wall_rect</span><span class="s3">):</span>
+                        <span class="s2">return True</span>
+        <span class="s2">return False</span>
+
+    <span class="s2">def </span><span class="s1">draw</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">screen</span><span class="s3">):</span>
+        <span class="s1">pygame</span><span class="s3">.</span><span class="s1">draw</span><span class="s3">.</span><span class="s1">circle</span><span class="s3">(</span><span class="s1">screen</span><span class="s3">, </span><span class="s1">YELLOW</span><span class="s3">, </span><span class="s1">self</span><span class="s3">.</span><span class="s1">rect</span><span class="s3">.</span><span class="s1">center</span><span class="s3">, </span><span class="s1">TILE_SIZE </span><span class="s3">// </span><span class="s4">2</span><span class="s3">)</span>
+
+<span class="s2">class </span><span class="s1">Ghost</span><span class="s3">:</span>
+    <span class="s2">def </span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">, </span><span class="s1">color</span><span class="s3">=</span><span class="s1">RED</span><span class="s3">):</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">start_x </span><span class="s3">= </span><span class="s1">x</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">start_y </span><span class="s3">= </span><span class="s1">y</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">rect </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">(</span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">, </span><span class="s1">TILE_SIZE</span><span class="s3">, </span><span class="s1">TILE_SIZE</span><span class="s3">)</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">= </span><span class="s1">random</span><span class="s3">.</span><span class="s1">choice</span><span class="s3">([(</span><span class="s1">TILE_SIZE</span><span class="s3">,</span><span class="s4">0</span><span class="s3">), (-</span><span class="s1">TILE_SIZE</span><span class="s3">,</span><span class="s4">0</span><span class="s3">), (</span><span class="s4">0</span><span class="s3">,</span><span class="s1">TILE_SIZE</span><span class="s3">), (</span><span class="s4">0</span><span class="s3">,-</span><span class="s1">TILE_SIZE</span><span class="s3">)])</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">color </span><span class="s3">= </span><span class="s1">color</span>
+
+    <span class="s2">def </span><span class="s1">reset</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">rect</span><span class="s3">.</span><span class="s1">x </span><span class="s3">= </span><span class="s1">self</span><span class="s3">.</span><span class="s1">start_x</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">rect</span><span class="s3">.</span><span class="s1">y </span><span class="s3">= </span><span class="s1">self</span><span class="s3">.</span><span class="s1">start_y</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">= </span><span class="s1">random</span><span class="s3">.</span><span class="s1">choice</span><span class="s3">([(</span><span class="s1">TILE_SIZE</span><span class="s3">,</span><span class="s4">0</span><span class="s3">), (-</span><span class="s1">TILE_SIZE</span><span class="s3">,</span><span class="s4">0</span><span class="s3">), (</span><span class="s4">0</span><span class="s3">,</span><span class="s1">TILE_SIZE</span><span class="s3">), (</span><span class="s4">0</span><span class="s3">,-</span><span class="s1">TILE_SIZE</span><span class="s3">)])</span>
+
+    <span class="s2">def </span><span class="s1">move</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">maze</span><span class="s3">, </span><span class="s1">player_pos</span><span class="s3">=</span><span class="s2">None</span><span class="s3">):</span>
+        <span class="s2">if </span><span class="s1">self</span><span class="s3">.</span><span class="s1">color </span><span class="s3">== </span><span class="s1">RED</span><span class="s3">:</span>
+            <span class="s2">if </span><span class="s1">random</span><span class="s3">.</span><span class="s1">randint</span><span class="s3">(</span><span class="s4">0</span><span class="s3">, </span><span class="s4">10</span><span class="s3">) &gt; </span><span class="s4">8</span><span class="s3">:</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">= </span><span class="s1">random</span><span class="s3">.</span><span class="s1">choice</span><span class="s3">([(</span><span class="s1">TILE_SIZE</span><span class="s3">,</span><span class="s4">0</span><span class="s3">), (-</span><span class="s1">TILE_SIZE</span><span class="s3">,</span><span class="s4">0</span><span class="s3">), (</span><span class="s4">0</span><span class="s3">,</span><span class="s1">TILE_SIZE</span><span class="s3">), (</span><span class="s4">0</span><span class="s3">,-</span><span class="s1">TILE_SIZE</span><span class="s3">)])</span>
+        <span class="s2">elif </span><span class="s1">self</span><span class="s3">.</span><span class="s1">color </span><span class="s3">== </span><span class="s1">ORANGE </span><span class="s2">and </span><span class="s1">player_pos</span><span class="s3">:</span>
+            <span class="s1">px</span><span class="s3">, </span><span class="s1">py </span><span class="s3">= </span><span class="s1">player_pos</span>
+            <span class="s1">gx</span><span class="s3">, </span><span class="s1">gy </span><span class="s3">= </span><span class="s1">self</span><span class="s3">.</span><span class="s1">rect</span><span class="s3">.</span><span class="s1">x</span><span class="s3">, </span><span class="s1">self</span><span class="s3">.</span><span class="s1">rect</span><span class="s3">.</span><span class="s1">y</span>
+            <span class="s2">if </span><span class="s1">abs</span><span class="s3">(</span><span class="s1">px </span><span class="s3">- </span><span class="s1">gx</span><span class="s3">) &gt; </span><span class="s1">abs</span><span class="s3">(</span><span class="s1">py </span><span class="s3">- </span><span class="s1">gy</span><span class="s3">):</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">= (</span><span class="s1">TILE_SIZE </span><span class="s2">if </span><span class="s1">px </span><span class="s3">&gt; </span><span class="s1">gx </span><span class="s2">else </span><span class="s3">-</span><span class="s1">TILE_SIZE</span><span class="s3">, </span><span class="s4">0</span><span class="s3">)</span>
+            <span class="s2">else</span><span class="s3">:</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">direction </span><span class="s3">= (</span><span class="s4">0</span><span class="s3">, </span><span class="s1">TILE_SIZE </span><span class="s2">if </span><span class="s1">py </span><span class="s3">&gt; </span><span class="s1">gy </span><span class="s2">else </span><span class="s3">-</span><span class="s1">TILE_SIZE</span><span class="s3">)</span>
+
+        <span class="s1">new_rect </span><span class="s3">= </span><span class="s1">self</span><span class="s3">.</span><span class="s1">rect</span><span class="s3">.</span><span class="s1">move</span><span class="s3">(*</span><span class="s1">self</span><span class="s3">.</span><span class="s1">direction</span><span class="s3">)</span>
+        <span class="s2">if not </span><span class="s1">self</span><span class="s3">.</span><span class="s1">collides_with_walls</span><span class="s3">(</span><span class="s1">new_rect</span><span class="s3">, </span><span class="s1">maze</span><span class="s3">):</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">rect </span><span class="s3">= </span><span class="s1">new_rect</span>
+
+    <span class="s2">def </span><span class="s1">collides_with_walls</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">rect</span><span class="s3">, </span><span class="s1">maze</span><span class="s3">):</span>
+        <span class="s2">for </span><span class="s1">row_index</span><span class="s3">, </span><span class="s1">row </span><span class="s2">in </span><span class="s1">enumerate</span><span class="s3">(</span><span class="s1">maze</span><span class="s3">):</span>
+            <span class="s2">for </span><span class="s1">col_index</span><span class="s3">, </span><span class="s1">cell </span><span class="s2">in </span><span class="s1">enumerate</span><span class="s3">(</span><span class="s1">row</span><span class="s3">):</span>
+                <span class="s2">if </span><span class="s1">cell </span><span class="s3">== </span><span class="s5">&quot;1&quot;</span><span class="s3">:</span>
+                    <span class="s1">wall_rect </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">(</span><span class="s1">col_index </span><span class="s3">* </span><span class="s1">TILE_SIZE</span><span class="s3">, </span><span class="s1">row_index </span><span class="s3">* </span><span class="s1">TILE_SIZE</span><span class="s3">, </span><span class="s1">TILE_SIZE</span><span class="s3">, </span><span class="s1">TILE_SIZE</span><span class="s3">)</span>
+                    <span class="s2">if </span><span class="s1">rect</span><span class="s3">.</span><span class="s1">colliderect</span><span class="s3">(</span><span class="s1">wall_rect</span><span class="s3">):</span>
+                        <span class="s2">return True</span>
+        <span class="s2">return False</span>
+
+    <span class="s2">def </span><span class="s1">draw</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">screen</span><span class="s3">):</span>
+        <span class="s1">pygame</span><span class="s3">.</span><span class="s1">draw</span><span class="s3">.</span><span class="s1">rect</span><span class="s3">(</span><span class="s1">screen</span><span class="s3">, </span><span class="s1">self</span><span class="s3">.</span><span class="s1">color</span><span class="s3">, </span><span class="s1">self</span><span class="s3">.</span><span class="s1">rect</span><span class="s3">)</span>
+
+<span class="s2">class </span><span class="s1">Dot</span><span class="s3">:</span>
+    <span class="s2">def </span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">x</span><span class="s3">, </span><span class="s1">y</span><span class="s3">):</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">rect </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">(</span><span class="s1">x </span><span class="s3">+ </span><span class="s1">TILE_SIZE</span><span class="s3">//</span><span class="s4">4</span><span class="s3">, </span><span class="s1">y </span><span class="s3">+ </span><span class="s1">TILE_SIZE</span><span class="s3">//</span><span class="s4">4</span><span class="s3">, </span><span class="s1">TILE_SIZE</span><span class="s3">//</span><span class="s4">2</span><span class="s3">, </span><span class="s1">TILE_SIZE</span><span class="s3">//</span><span class="s4">2</span><span class="s3">)</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">eaten </span><span class="s3">= </span><span class="s2">False</span>
+
+    <span class="s2">def </span><span class="s1">draw</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">screen</span><span class="s3">):</span>
+        <span class="s2">if not </span><span class="s1">self</span><span class="s3">.</span><span class="s1">eaten</span><span class="s3">:</span>
+            <span class="s1">pygame</span><span class="s3">.</span><span class="s1">draw</span><span class="s3">.</span><span class="s1">circle</span><span class="s3">(</span><span class="s1">screen</span><span class="s3">, </span><span class="s1">GREEN</span><span class="s3">, </span><span class="s1">self</span><span class="s3">.</span><span class="s1">rect</span><span class="s3">.</span><span class="s1">center</span><span class="s3">, </span><span class="s4">4</span><span class="s3">)</span>
+
+<span class="s2">class </span><span class="s1">Game</span><span class="s3">:</span>
+    <span class="s2">def </span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s1">pygame</span><span class="s3">.</span><span class="s1">init</span><span class="s3">()</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">screen </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">display</span><span class="s3">.</span><span class="s1">set_mode</span><span class="s3">((</span><span class="s1">WIDTH</span><span class="s3">, </span><span class="s1">HEIGHT</span><span class="s3">))</span>
+        <span class="s1">pygame</span><span class="s3">.</span><span class="s1">display</span><span class="s3">.</span><span class="s1">set_caption</span><span class="s3">(</span><span class="s5">&quot;Pacman&quot;</span><span class="s3">)</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">clock </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">time</span><span class="s3">.</span><span class="s1">Clock</span><span class="s3">()</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">maze </span><span class="s3">= </span><span class="s1">MAZE</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">player </span><span class="s3">= </span><span class="s1">Player</span><span class="s3">(</span><span class="s4">1 </span><span class="s3">* </span><span class="s1">TILE_SIZE</span><span class="s3">, </span><span class="s4">1 </span><span class="s3">* </span><span class="s1">TILE_SIZE</span><span class="s3">)</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">ghosts </span><span class="s3">= [</span><span class="s1">Ghost</span><span class="s3">(</span><span class="s4">10 </span><span class="s3">* </span><span class="s1">TILE_SIZE</span><span class="s3">, </span><span class="s4">1 </span><span class="s3">* </span><span class="s1">TILE_SIZE</span><span class="s3">, </span><span class="s1">RED</span><span class="s3">), </span><span class="s1">Ghost</span><span class="s3">(</span><span class="s4">10 </span><span class="s3">* </span><span class="s1">TILE_SIZE</span><span class="s3">, </span><span class="s4">5 </span><span class="s3">* </span><span class="s1">TILE_SIZE</span><span class="s3">, </span><span class="s1">ORANGE</span><span class="s3">)]</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">dots </span><span class="s3">= </span><span class="s1">self</span><span class="s3">.</span><span class="s1">create_dots</span><span class="s3">()</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">score </span><span class="s3">= </span><span class="s4">0</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">font </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">font</span><span class="s3">.</span><span class="s1">SysFont</span><span class="s3">(</span><span class="s2">None</span><span class="s3">, </span><span class="s4">36</span><span class="s3">)</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">game_over </span><span class="s3">= </span><span class="s2">False</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">lives </span><span class="s3">= </span><span class="s4">3</span>
+
+    <span class="s2">def </span><span class="s1">reset_positions</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">player</span><span class="s3">.</span><span class="s1">reset</span><span class="s3">()</span>
+        <span class="s2">for </span><span class="s1">ghost </span><span class="s2">in </span><span class="s1">self</span><span class="s3">.</span><span class="s1">ghosts</span><span class="s3">:</span>
+            <span class="s1">ghost</span><span class="s3">.</span><span class="s1">reset</span><span class="s3">()</span>
+
+    <span class="s2">def </span><span class="s1">create_dots</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s1">dots </span><span class="s3">= []</span>
+        <span class="s2">for </span><span class="s1">row_index</span><span class="s3">, </span><span class="s1">row </span><span class="s2">in </span><span class="s1">enumerate</span><span class="s3">(</span><span class="s1">self</span><span class="s3">.</span><span class="s1">maze</span><span class="s3">):</span>
+            <span class="s2">for </span><span class="s1">col_index</span><span class="s3">, </span><span class="s1">cell </span><span class="s2">in </span><span class="s1">enumerate</span><span class="s3">(</span><span class="s1">row</span><span class="s3">):</span>
+                <span class="s2">if </span><span class="s1">cell </span><span class="s3">== </span><span class="s5">&quot;0&quot;</span><span class="s3">:</span>
+                    <span class="s1">dots</span><span class="s3">.</span><span class="s1">append</span><span class="s3">(</span><span class="s1">Dot</span><span class="s3">(</span><span class="s1">col_index </span><span class="s3">* </span><span class="s1">TILE_SIZE</span><span class="s3">, </span><span class="s1">row_index </span><span class="s3">* </span><span class="s1">TILE_SIZE</span><span class="s3">))</span>
+        <span class="s2">return </span><span class="s1">dots</span>
+
+    <span class="s2">def </span><span class="s1">draw_maze</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s2">for </span><span class="s1">row_index</span><span class="s3">, </span><span class="s1">row </span><span class="s2">in </span><span class="s1">enumerate</span><span class="s3">(</span><span class="s1">self</span><span class="s3">.</span><span class="s1">maze</span><span class="s3">):</span>
+            <span class="s2">for </span><span class="s1">col_index</span><span class="s3">, </span><span class="s1">cell </span><span class="s2">in </span><span class="s1">enumerate</span><span class="s3">(</span><span class="s1">row</span><span class="s3">):</span>
+                <span class="s2">if </span><span class="s1">cell </span><span class="s3">== </span><span class="s5">&quot;1&quot;</span><span class="s3">:</span>
+                    <span class="s1">pygame</span><span class="s3">.</span><span class="s1">draw</span><span class="s3">.</span><span class="s1">rect</span><span class="s3">(</span>
+                        <span class="s1">self</span><span class="s3">.</span><span class="s1">screen</span><span class="s3">,</span>
+                        <span class="s1">BLUE</span><span class="s3">,</span>
+                        <span class="s1">pygame</span><span class="s3">.</span><span class="s1">Rect</span><span class="s3">(</span><span class="s1">col_index </span><span class="s3">* </span><span class="s1">TILE_SIZE</span><span class="s3">, </span><span class="s1">row_index </span><span class="s3">* </span><span class="s1">TILE_SIZE</span><span class="s3">, </span><span class="s1">TILE_SIZE</span><span class="s3">, </span><span class="s1">TILE_SIZE</span><span class="s3">)</span>
+                    <span class="s3">)</span>
+
+    <span class="s2">def </span><span class="s1">handle_events</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s1">keys </span><span class="s3">= </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">key</span><span class="s3">.</span><span class="s1">get_pressed</span><span class="s3">()</span>
+        <span class="s2">if </span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_LEFT</span><span class="s3">]:</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">player</span><span class="s3">.</span><span class="s1">dx</span><span class="s3">, </span><span class="s1">self</span><span class="s3">.</span><span class="s1">player</span><span class="s3">.</span><span class="s1">dy </span><span class="s3">= -</span><span class="s1">TILE_SIZE</span><span class="s3">, </span><span class="s4">0</span>
+        <span class="s2">elif </span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_RIGHT</span><span class="s3">]:</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">player</span><span class="s3">.</span><span class="s1">dx</span><span class="s3">, </span><span class="s1">self</span><span class="s3">.</span><span class="s1">player</span><span class="s3">.</span><span class="s1">dy </span><span class="s3">= </span><span class="s1">TILE_SIZE</span><span class="s3">, </span><span class="s4">0</span>
+        <span class="s2">elif </span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_UP</span><span class="s3">]:</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">player</span><span class="s3">.</span><span class="s1">dx</span><span class="s3">, </span><span class="s1">self</span><span class="s3">.</span><span class="s1">player</span><span class="s3">.</span><span class="s1">dy </span><span class="s3">= </span><span class="s4">0</span><span class="s3">, -</span><span class="s1">TILE_SIZE</span>
+        <span class="s2">elif </span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_DOWN</span><span class="s3">]:</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">player</span><span class="s3">.</span><span class="s1">dx</span><span class="s3">, </span><span class="s1">self</span><span class="s3">.</span><span class="s1">player</span><span class="s3">.</span><span class="s1">dy </span><span class="s3">= </span><span class="s4">0</span><span class="s3">, </span><span class="s1">TILE_SIZE</span>
+        <span class="s2">if </span><span class="s1">self</span><span class="s3">.</span><span class="s1">game_over </span><span class="s2">and </span><span class="s1">keys</span><span class="s3">[</span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">K_r</span><span class="s3">]:</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">__init__</span><span class="s3">()</span>
+
+    <span class="s2">def </span><span class="s1">update_dots</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s2">for </span><span class="s1">dot </span><span class="s2">in </span><span class="s1">self</span><span class="s3">.</span><span class="s1">dots</span><span class="s3">:</span>
+            <span class="s2">if not </span><span class="s1">dot</span><span class="s3">.</span><span class="s1">eaten </span><span class="s2">and </span><span class="s1">self</span><span class="s3">.</span><span class="s1">player</span><span class="s3">.</span><span class="s1">rect</span><span class="s3">.</span><span class="s1">colliderect</span><span class="s3">(</span><span class="s1">dot</span><span class="s3">.</span><span class="s1">rect</span><span class="s3">):</span>
+                <span class="s1">dot</span><span class="s3">.</span><span class="s1">eaten </span><span class="s3">= </span><span class="s2">True</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">score </span><span class="s3">+= </span><span class="s4">10</span>
+
+    <span class="s2">def </span><span class="s1">check_collisions</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s2">for </span><span class="s1">ghost </span><span class="s2">in </span><span class="s1">self</span><span class="s3">.</span><span class="s1">ghosts</span><span class="s3">:</span>
+            <span class="s2">if </span><span class="s1">self</span><span class="s3">.</span><span class="s1">player</span><span class="s3">.</span><span class="s1">rect</span><span class="s3">.</span><span class="s1">colliderect</span><span class="s3">(</span><span class="s1">ghost</span><span class="s3">.</span><span class="s1">rect</span><span class="s3">):</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">lives </span><span class="s3">-= </span><span class="s4">1</span>
+                <span class="s2">if </span><span class="s1">self</span><span class="s3">.</span><span class="s1">lives </span><span class="s3">&lt;= </span><span class="s4">0</span><span class="s3">:</span>
+                    <span class="s1">self</span><span class="s3">.</span><span class="s1">game_over </span><span class="s3">= </span><span class="s2">True</span>
+                <span class="s2">else</span><span class="s3">:</span>
+                    <span class="s1">self</span><span class="s3">.</span><span class="s1">reset_positions</span><span class="s3">()</span>
+
+    <span class="s2">def </span><span class="s1">draw_score</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s1">score_text </span><span class="s3">= </span><span class="s1">self</span><span class="s3">.</span><span class="s1">font</span><span class="s3">.</span><span class="s1">render</span><span class="s3">(</span><span class="s5">f&quot;Score: </span><span class="s2">{</span><span class="s1">self</span><span class="s3">.</span><span class="s1">score</span><span class="s2">}</span><span class="s5">&quot;</span><span class="s3">, </span><span class="s2">True</span><span class="s3">, </span><span class="s1">WHITE</span><span class="s3">)</span>
+        <span class="s1">lives_text </span><span class="s3">= </span><span class="s1">self</span><span class="s3">.</span><span class="s1">font</span><span class="s3">.</span><span class="s1">render</span><span class="s3">(</span><span class="s5">f&quot;Lives: </span><span class="s2">{</span><span class="s1">self</span><span class="s3">.</span><span class="s1">lives</span><span class="s2">}</span><span class="s5">&quot;</span><span class="s3">, </span><span class="s2">True</span><span class="s3">, </span><span class="s1">WHITE</span><span class="s3">)</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">screen</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">score_text</span><span class="s3">, (</span><span class="s4">10</span><span class="s3">, </span><span class="s1">HEIGHT </span><span class="s3">- </span><span class="s4">40</span><span class="s3">))</span>
+        <span class="s1">self</span><span class="s3">.</span><span class="s1">screen</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">lives_text</span><span class="s3">, (</span><span class="s4">200</span><span class="s3">, </span><span class="s1">HEIGHT </span><span class="s3">- </span><span class="s4">40</span><span class="s3">))</span>
+        <span class="s2">if </span><span class="s1">self</span><span class="s3">.</span><span class="s1">game_over</span><span class="s3">:</span>
+            <span class="s1">over_text </span><span class="s3">= </span><span class="s1">self</span><span class="s3">.</span><span class="s1">font</span><span class="s3">.</span><span class="s1">render</span><span class="s3">(</span><span class="s5">&quot;Game Over - Press R to Restart&quot;</span><span class="s3">, </span><span class="s2">True</span><span class="s3">, </span><span class="s1">RED</span><span class="s3">)</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">screen</span><span class="s3">.</span><span class="s1">blit</span><span class="s3">(</span><span class="s1">over_text</span><span class="s3">, (</span><span class="s1">WIDTH</span><span class="s3">//</span><span class="s4">2 </span><span class="s3">- </span><span class="s4">200</span><span class="s3">, </span><span class="s1">HEIGHT</span><span class="s3">//</span><span class="s4">2</span><span class="s3">))</span>
+
+    <span class="s2">def </span><span class="s1">run</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s2">while True</span><span class="s3">:</span>
+            <span class="s2">for </span><span class="s1">event </span><span class="s2">in </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">event</span><span class="s3">.</span><span class="s1">get</span><span class="s3">():</span>
+                <span class="s2">if </span><span class="s1">event</span><span class="s3">.</span><span class="s1">type </span><span class="s3">== </span><span class="s1">pygame</span><span class="s3">.</span><span class="s1">QUIT</span><span class="s3">:</span>
+                    <span class="s1">pygame</span><span class="s3">.</span><span class="s1">quit</span><span class="s3">()</span>
+                    <span class="s1">sys</span><span class="s3">.</span><span class="s1">exit</span><span class="s3">()</span>
+
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">handle_events</span><span class="s3">()</span>
+
+            <span class="s2">if not </span><span class="s1">self</span><span class="s3">.</span><span class="s1">game_over</span><span class="s3">:</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">player</span><span class="s3">.</span><span class="s1">move</span><span class="s3">(</span><span class="s1">self</span><span class="s3">.</span><span class="s1">maze</span><span class="s3">)</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">update_dots</span><span class="s3">()</span>
+                <span class="s2">for </span><span class="s1">ghost </span><span class="s2">in </span><span class="s1">self</span><span class="s3">.</span><span class="s1">ghosts</span><span class="s3">:</span>
+                    <span class="s1">ghost</span><span class="s3">.</span><span class="s1">move</span><span class="s3">(</span><span class="s1">self</span><span class="s3">.</span><span class="s1">maze</span><span class="s3">, </span><span class="s1">self</span><span class="s3">.</span><span class="s1">player</span><span class="s3">.</span><span class="s1">rect</span><span class="s3">.</span><span class="s1">center</span><span class="s3">)</span>
+                <span class="s1">self</span><span class="s3">.</span><span class="s1">check_collisions</span><span class="s3">()</span>
+
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">screen</span><span class="s3">.</span><span class="s1">fill</span><span class="s3">(</span><span class="s1">BLACK</span><span class="s3">)</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">draw_maze</span><span class="s3">()</span>
+            <span class="s2">for </span><span class="s1">dot </span><span class="s2">in </span><span class="s1">self</span><span class="s3">.</span><span class="s1">dots</span><span class="s3">:</span>
+                <span class="s1">dot</span><span class="s3">.</span><span class="s1">draw</span><span class="s3">(</span><span class="s1">self</span><span class="s3">.</span><span class="s1">screen</span><span class="s3">)</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">player</span><span class="s3">.</span><span class="s1">draw</span><span class="s3">(</span><span class="s1">self</span><span class="s3">.</span><span class="s1">screen</span><span class="s3">)</span>
+            <span class="s2">for </span><span class="s1">ghost </span><span class="s2">in </span><span class="s1">self</span><span class="s3">.</span><span class="s1">ghosts</span><span class="s3">:</span>
+                <span class="s1">ghost</span><span class="s3">.</span><span class="s1">draw</span><span class="s3">(</span><span class="s1">self</span><span class="s3">.</span><span class="s1">screen</span><span class="s3">)</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">draw_score</span><span class="s3">()</span>
+            <span class="s1">pygame</span><span class="s3">.</span><span class="s1">display</span><span class="s3">.</span><span class="s1">flip</span><span class="s3">()</span>
+            <span class="s1">self</span><span class="s3">.</span><span class="s1">clock</span><span class="s3">.</span><span class="s1">tick</span><span class="s3">(</span><span class="s1">FPS</span><span class="s3">)</span>
+
+<span class="s2">if </span><span class="s1">__name__ </span><span class="s3">== </span><span class="s5">'__main__'</span><span class="s3">:</span>
+    <span class="s1">Game</span><span class="s3">().</span><span class="s1">run</span><span class="s3">()</span>
+</pre>
+</body>
+</html>

@@ -1,0 +1,296 @@
+<html>
+<head>
+<title>__main__.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #2aacb8;}
+.s4 { color: #6aab73;}
+.s5 { color: #5f826b; font-style: italic;}
+.s6 { color: #7a7e85;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+__main__.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">colorsys</span>
+<span class="s0">import </span><span class="s1">io</span>
+<span class="s0">from </span><span class="s1">time </span><span class="s0">import </span><span class="s1">process_time</span>
+
+<span class="s0">from </span><span class="s1">pip</span><span class="s2">.</span><span class="s1">_vendor</span><span class="s2">.</span><span class="s1">rich </span><span class="s0">import </span><span class="s1">box</span>
+<span class="s0">from </span><span class="s1">pip</span><span class="s2">.</span><span class="s1">_vendor</span><span class="s2">.</span><span class="s1">rich</span><span class="s2">.</span><span class="s1">color </span><span class="s0">import </span><span class="s1">Color</span>
+<span class="s0">from </span><span class="s1">pip</span><span class="s2">.</span><span class="s1">_vendor</span><span class="s2">.</span><span class="s1">rich</span><span class="s2">.</span><span class="s1">console </span><span class="s0">import </span><span class="s1">Console</span><span class="s2">, </span><span class="s1">ConsoleOptions</span><span class="s2">, </span><span class="s1">Group</span><span class="s2">, </span><span class="s1">RenderableType</span><span class="s2">, </span><span class="s1">RenderResult</span>
+<span class="s0">from </span><span class="s1">pip</span><span class="s2">.</span><span class="s1">_vendor</span><span class="s2">.</span><span class="s1">rich</span><span class="s2">.</span><span class="s1">markdown </span><span class="s0">import </span><span class="s1">Markdown</span>
+<span class="s0">from </span><span class="s1">pip</span><span class="s2">.</span><span class="s1">_vendor</span><span class="s2">.</span><span class="s1">rich</span><span class="s2">.</span><span class="s1">measure </span><span class="s0">import </span><span class="s1">Measurement</span>
+<span class="s0">from </span><span class="s1">pip</span><span class="s2">.</span><span class="s1">_vendor</span><span class="s2">.</span><span class="s1">rich</span><span class="s2">.</span><span class="s1">pretty </span><span class="s0">import </span><span class="s1">Pretty</span>
+<span class="s0">from </span><span class="s1">pip</span><span class="s2">.</span><span class="s1">_vendor</span><span class="s2">.</span><span class="s1">rich</span><span class="s2">.</span><span class="s1">segment </span><span class="s0">import </span><span class="s1">Segment</span>
+<span class="s0">from </span><span class="s1">pip</span><span class="s2">.</span><span class="s1">_vendor</span><span class="s2">.</span><span class="s1">rich</span><span class="s2">.</span><span class="s1">style </span><span class="s0">import </span><span class="s1">Style</span>
+<span class="s0">from </span><span class="s1">pip</span><span class="s2">.</span><span class="s1">_vendor</span><span class="s2">.</span><span class="s1">rich</span><span class="s2">.</span><span class="s1">syntax </span><span class="s0">import </span><span class="s1">Syntax</span>
+<span class="s0">from </span><span class="s1">pip</span><span class="s2">.</span><span class="s1">_vendor</span><span class="s2">.</span><span class="s1">rich</span><span class="s2">.</span><span class="s1">table </span><span class="s0">import </span><span class="s1">Table</span>
+<span class="s0">from </span><span class="s1">pip</span><span class="s2">.</span><span class="s1">_vendor</span><span class="s2">.</span><span class="s1">rich</span><span class="s2">.</span><span class="s1">text </span><span class="s0">import </span><span class="s1">Text</span>
+
+
+<span class="s0">class </span><span class="s1">ColorBox</span><span class="s2">:</span>
+    <span class="s0">def </span><span class="s1">__rich_console__</span><span class="s2">(</span>
+        <span class="s1">self</span><span class="s2">, </span><span class="s1">console</span><span class="s2">: </span><span class="s1">Console</span><span class="s2">, </span><span class="s1">options</span><span class="s2">: </span><span class="s1">ConsoleOptions</span>
+    <span class="s2">) </span><span class="s1">-&gt; RenderResult</span><span class="s2">:</span>
+        <span class="s0">for </span><span class="s1">y </span><span class="s0">in </span><span class="s1">range</span><span class="s2">(</span><span class="s3">0</span><span class="s2">, </span><span class="s3">5</span><span class="s2">):</span>
+            <span class="s0">for </span><span class="s1">x </span><span class="s0">in </span><span class="s1">range</span><span class="s2">(</span><span class="s1">options</span><span class="s2">.</span><span class="s1">max_width</span><span class="s2">):</span>
+                <span class="s1">h </span><span class="s2">= </span><span class="s1">x </span><span class="s2">/ </span><span class="s1">options</span><span class="s2">.</span><span class="s1">max_width</span>
+                <span class="s1">l </span><span class="s2">= </span><span class="s3">0.1 </span><span class="s2">+ ((</span><span class="s1">y </span><span class="s2">/ </span><span class="s3">5</span><span class="s2">) * </span><span class="s3">0.7</span><span class="s2">)</span>
+                <span class="s1">r1</span><span class="s2">, </span><span class="s1">g1</span><span class="s2">, </span><span class="s1">b1 </span><span class="s2">= </span><span class="s1">colorsys</span><span class="s2">.</span><span class="s1">hls_to_rgb</span><span class="s2">(</span><span class="s1">h</span><span class="s2">, </span><span class="s1">l</span><span class="s2">, </span><span class="s3">1.0</span><span class="s2">)</span>
+                <span class="s1">r2</span><span class="s2">, </span><span class="s1">g2</span><span class="s2">, </span><span class="s1">b2 </span><span class="s2">= </span><span class="s1">colorsys</span><span class="s2">.</span><span class="s1">hls_to_rgb</span><span class="s2">(</span><span class="s1">h</span><span class="s2">, </span><span class="s1">l </span><span class="s2">+ </span><span class="s3">0.7 </span><span class="s2">/ </span><span class="s3">10</span><span class="s2">, </span><span class="s3">1.0</span><span class="s2">)</span>
+                <span class="s1">bgcolor </span><span class="s2">= </span><span class="s1">Color</span><span class="s2">.</span><span class="s1">from_rgb</span><span class="s2">(</span><span class="s1">r1 </span><span class="s2">* </span><span class="s3">255</span><span class="s2">, </span><span class="s1">g1 </span><span class="s2">* </span><span class="s3">255</span><span class="s2">, </span><span class="s1">b1 </span><span class="s2">* </span><span class="s3">255</span><span class="s2">)</span>
+                <span class="s1">color </span><span class="s2">= </span><span class="s1">Color</span><span class="s2">.</span><span class="s1">from_rgb</span><span class="s2">(</span><span class="s1">r2 </span><span class="s2">* </span><span class="s3">255</span><span class="s2">, </span><span class="s1">g2 </span><span class="s2">* </span><span class="s3">255</span><span class="s2">, </span><span class="s1">b2 </span><span class="s2">* </span><span class="s3">255</span><span class="s2">)</span>
+                <span class="s0">yield </span><span class="s1">Segment</span><span class="s2">(</span><span class="s4">&quot;▄&quot;</span><span class="s2">, </span><span class="s1">Style</span><span class="s2">(</span><span class="s1">color</span><span class="s2">=</span><span class="s1">color</span><span class="s2">, </span><span class="s1">bgcolor</span><span class="s2">=</span><span class="s1">bgcolor</span><span class="s2">))</span>
+            <span class="s0">yield </span><span class="s1">Segment</span><span class="s2">.</span><span class="s1">line</span><span class="s2">()</span>
+
+    <span class="s0">def </span><span class="s1">__rich_measure__</span><span class="s2">(</span>
+        <span class="s1">self</span><span class="s2">, </span><span class="s1">console</span><span class="s2">: </span><span class="s4">&quot;Console&quot;</span><span class="s2">, </span><span class="s1">options</span><span class="s2">: </span><span class="s1">ConsoleOptions</span>
+    <span class="s2">) </span><span class="s1">-&gt; Measurement</span><span class="s2">:</span>
+        <span class="s0">return </span><span class="s1">Measurement</span><span class="s2">(</span><span class="s3">1</span><span class="s2">, </span><span class="s1">options</span><span class="s2">.</span><span class="s1">max_width</span><span class="s2">)</span>
+
+
+<span class="s0">def </span><span class="s1">make_test_card</span><span class="s2">() </span><span class="s1">-&gt; Table</span><span class="s2">:</span>
+    <span class="s5">&quot;&quot;&quot;Get a renderable that demonstrates a number of features.&quot;&quot;&quot;</span>
+    <span class="s1">table </span><span class="s2">= </span><span class="s1">Table</span><span class="s2">.</span><span class="s1">grid</span><span class="s2">(</span><span class="s1">padding</span><span class="s2">=</span><span class="s3">1</span><span class="s2">, </span><span class="s1">pad_edge</span><span class="s2">=</span><span class="s0">True</span><span class="s2">)</span>
+    <span class="s1">table</span><span class="s2">.</span><span class="s1">title </span><span class="s2">= </span><span class="s4">&quot;Rich features&quot;</span>
+    <span class="s1">table</span><span class="s2">.</span><span class="s1">add_column</span><span class="s2">(</span><span class="s4">&quot;Feature&quot;</span><span class="s2">, </span><span class="s1">no_wrap</span><span class="s2">=</span><span class="s0">True</span><span class="s2">, </span><span class="s1">justify</span><span class="s2">=</span><span class="s4">&quot;center&quot;</span><span class="s2">, </span><span class="s1">style</span><span class="s2">=</span><span class="s4">&quot;bold red&quot;</span><span class="s2">)</span>
+    <span class="s1">table</span><span class="s2">.</span><span class="s1">add_column</span><span class="s2">(</span><span class="s4">&quot;Demonstration&quot;</span><span class="s2">)</span>
+
+    <span class="s1">color_table </span><span class="s2">= </span><span class="s1">Table</span><span class="s2">(</span>
+        <span class="s1">box</span><span class="s2">=</span><span class="s0">None</span><span class="s2">,</span>
+        <span class="s1">expand</span><span class="s2">=</span><span class="s0">False</span><span class="s2">,</span>
+        <span class="s1">show_header</span><span class="s2">=</span><span class="s0">False</span><span class="s2">,</span>
+        <span class="s1">show_edge</span><span class="s2">=</span><span class="s0">False</span><span class="s2">,</span>
+        <span class="s1">pad_edge</span><span class="s2">=</span><span class="s0">False</span><span class="s2">,</span>
+    <span class="s2">)</span>
+    <span class="s1">color_table</span><span class="s2">.</span><span class="s1">add_row</span><span class="s2">(</span>
+        <span class="s2">(</span>
+            <span class="s4">&quot;✓ [bold green]4-bit color[/]</span><span class="s0">\n</span><span class="s4">&quot;</span>
+            <span class="s4">&quot;✓ [bold blue]8-bit color[/]</span><span class="s0">\n</span><span class="s4">&quot;</span>
+            <span class="s4">&quot;✓ [bold magenta]Truecolor (16.7 million)[/]</span><span class="s0">\n</span><span class="s4">&quot;</span>
+            <span class="s4">&quot;✓ [bold yellow]Dumb terminals[/]</span><span class="s0">\n</span><span class="s4">&quot;</span>
+            <span class="s4">&quot;✓ [bold cyan]Automatic color conversion&quot;</span>
+        <span class="s2">),</span>
+        <span class="s1">ColorBox</span><span class="s2">(),</span>
+    <span class="s2">)</span>
+
+    <span class="s1">table</span><span class="s2">.</span><span class="s1">add_row</span><span class="s2">(</span><span class="s4">&quot;Colors&quot;</span><span class="s2">, </span><span class="s1">color_table</span><span class="s2">)</span>
+
+    <span class="s1">table</span><span class="s2">.</span><span class="s1">add_row</span><span class="s2">(</span>
+        <span class="s4">&quot;Styles&quot;</span><span class="s2">,</span>
+        <span class="s4">&quot;All ansi styles: [bold]bold[/], [dim]dim[/], [italic]italic[/italic], [underline]underline[/], [strike]strikethrough[/], [reverse]reverse[/], and even [blink]blink[/].&quot;</span><span class="s2">,</span>
+    <span class="s2">)</span>
+
+    <span class="s1">lorem </span><span class="s2">= </span><span class="s4">&quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque in metus sed sapien ultricies pretium a at justo. Maecenas luctus velit et auctor maximus.&quot;</span>
+    <span class="s1">lorem_table </span><span class="s2">= </span><span class="s1">Table</span><span class="s2">.</span><span class="s1">grid</span><span class="s2">(</span><span class="s1">padding</span><span class="s2">=</span><span class="s3">1</span><span class="s2">, </span><span class="s1">collapse_padding</span><span class="s2">=</span><span class="s0">True</span><span class="s2">)</span>
+    <span class="s1">lorem_table</span><span class="s2">.</span><span class="s1">pad_edge </span><span class="s2">= </span><span class="s0">False</span>
+    <span class="s1">lorem_table</span><span class="s2">.</span><span class="s1">add_row</span><span class="s2">(</span>
+        <span class="s1">Text</span><span class="s2">(</span><span class="s1">lorem</span><span class="s2">, </span><span class="s1">justify</span><span class="s2">=</span><span class="s4">&quot;left&quot;</span><span class="s2">, </span><span class="s1">style</span><span class="s2">=</span><span class="s4">&quot;green&quot;</span><span class="s2">),</span>
+        <span class="s1">Text</span><span class="s2">(</span><span class="s1">lorem</span><span class="s2">, </span><span class="s1">justify</span><span class="s2">=</span><span class="s4">&quot;center&quot;</span><span class="s2">, </span><span class="s1">style</span><span class="s2">=</span><span class="s4">&quot;yellow&quot;</span><span class="s2">),</span>
+        <span class="s1">Text</span><span class="s2">(</span><span class="s1">lorem</span><span class="s2">, </span><span class="s1">justify</span><span class="s2">=</span><span class="s4">&quot;right&quot;</span><span class="s2">, </span><span class="s1">style</span><span class="s2">=</span><span class="s4">&quot;blue&quot;</span><span class="s2">),</span>
+        <span class="s1">Text</span><span class="s2">(</span><span class="s1">lorem</span><span class="s2">, </span><span class="s1">justify</span><span class="s2">=</span><span class="s4">&quot;full&quot;</span><span class="s2">, </span><span class="s1">style</span><span class="s2">=</span><span class="s4">&quot;red&quot;</span><span class="s2">),</span>
+    <span class="s2">)</span>
+    <span class="s1">table</span><span class="s2">.</span><span class="s1">add_row</span><span class="s2">(</span>
+        <span class="s4">&quot;Text&quot;</span><span class="s2">,</span>
+        <span class="s1">Group</span><span class="s2">(</span>
+            <span class="s1">Text</span><span class="s2">.</span><span class="s1">from_markup</span><span class="s2">(</span>
+                <span class="s4">&quot;&quot;&quot;Word wrap text. Justify [green]left[/], [yellow]center[/], [blue]right[/] or [red]full[/].</span><span class="s0">\n</span><span class="s4">&quot;&quot;&quot;</span>
+            <span class="s2">),</span>
+            <span class="s1">lorem_table</span><span class="s2">,</span>
+        <span class="s2">),</span>
+    <span class="s2">)</span>
+
+    <span class="s0">def </span><span class="s1">comparison</span><span class="s2">(</span><span class="s1">renderable1</span><span class="s2">: </span><span class="s1">RenderableType</span><span class="s2">, </span><span class="s1">renderable2</span><span class="s2">: </span><span class="s1">RenderableType</span><span class="s2">) </span><span class="s1">-&gt; Table</span><span class="s2">:</span>
+        <span class="s1">table </span><span class="s2">= </span><span class="s1">Table</span><span class="s2">(</span><span class="s1">show_header</span><span class="s2">=</span><span class="s0">False</span><span class="s2">, </span><span class="s1">pad_edge</span><span class="s2">=</span><span class="s0">False</span><span class="s2">, </span><span class="s1">box</span><span class="s2">=</span><span class="s0">None</span><span class="s2">, </span><span class="s1">expand</span><span class="s2">=</span><span class="s0">True</span><span class="s2">)</span>
+        <span class="s1">table</span><span class="s2">.</span><span class="s1">add_column</span><span class="s2">(</span><span class="s4">&quot;1&quot;</span><span class="s2">, </span><span class="s1">ratio</span><span class="s2">=</span><span class="s3">1</span><span class="s2">)</span>
+        <span class="s1">table</span><span class="s2">.</span><span class="s1">add_column</span><span class="s2">(</span><span class="s4">&quot;2&quot;</span><span class="s2">, </span><span class="s1">ratio</span><span class="s2">=</span><span class="s3">1</span><span class="s2">)</span>
+        <span class="s1">table</span><span class="s2">.</span><span class="s1">add_row</span><span class="s2">(</span><span class="s1">renderable1</span><span class="s2">, </span><span class="s1">renderable2</span><span class="s2">)</span>
+        <span class="s0">return </span><span class="s1">table</span>
+
+    <span class="s1">table</span><span class="s2">.</span><span class="s1">add_row</span><span class="s2">(</span>
+        <span class="s4">&quot;Asian</span><span class="s0">\n</span><span class="s4">language</span><span class="s0">\n</span><span class="s4">support&quot;</span><span class="s2">,</span>
+        <span class="s4">&quot;:flag_for_china:  该库支持中文，日文和韩文文本！</span><span class="s0">\n</span><span class="s4">:flag_for_japan:  ライブラリは中国語、日本語、韓国語のテキストをサポートしています</span><span class="s0">\n</span><span class="s4">:flag_for_south_korea:  이 라이브러리는 중국어, 일본어 및 한국어 텍스트를 지원합니다&quot;</span><span class="s2">,</span>
+    <span class="s2">)</span>
+
+    <span class="s1">markup_example </span><span class="s2">= (</span>
+        <span class="s4">&quot;[bold magenta]Rich[/] supports a simple [i]bbcode[/i]-like [b]markup[/b] for [yellow]color[/], [underline]style[/], and emoji! &quot;</span>
+        <span class="s4">&quot;:+1: :apple: :ant: :bear: :baguette_bread: :bus: &quot;</span>
+    <span class="s2">)</span>
+    <span class="s1">table</span><span class="s2">.</span><span class="s1">add_row</span><span class="s2">(</span><span class="s4">&quot;Markup&quot;</span><span class="s2">, </span><span class="s1">markup_example</span><span class="s2">)</span>
+
+    <span class="s1">example_table </span><span class="s2">= </span><span class="s1">Table</span><span class="s2">(</span>
+        <span class="s1">show_edge</span><span class="s2">=</span><span class="s0">False</span><span class="s2">,</span>
+        <span class="s1">show_header</span><span class="s2">=</span><span class="s0">True</span><span class="s2">,</span>
+        <span class="s1">expand</span><span class="s2">=</span><span class="s0">False</span><span class="s2">,</span>
+        <span class="s1">row_styles</span><span class="s2">=[</span><span class="s4">&quot;none&quot;</span><span class="s2">, </span><span class="s4">&quot;dim&quot;</span><span class="s2">],</span>
+        <span class="s1">box</span><span class="s2">=</span><span class="s1">box</span><span class="s2">.</span><span class="s1">SIMPLE</span><span class="s2">,</span>
+    <span class="s2">)</span>
+    <span class="s1">example_table</span><span class="s2">.</span><span class="s1">add_column</span><span class="s2">(</span><span class="s4">&quot;[green]Date&quot;</span><span class="s2">, </span><span class="s1">style</span><span class="s2">=</span><span class="s4">&quot;green&quot;</span><span class="s2">, </span><span class="s1">no_wrap</span><span class="s2">=</span><span class="s0">True</span><span class="s2">)</span>
+    <span class="s1">example_table</span><span class="s2">.</span><span class="s1">add_column</span><span class="s2">(</span><span class="s4">&quot;[blue]Title&quot;</span><span class="s2">, </span><span class="s1">style</span><span class="s2">=</span><span class="s4">&quot;blue&quot;</span><span class="s2">)</span>
+    <span class="s1">example_table</span><span class="s2">.</span><span class="s1">add_column</span><span class="s2">(</span>
+        <span class="s4">&quot;[cyan]Production Budget&quot;</span><span class="s2">,</span>
+        <span class="s1">style</span><span class="s2">=</span><span class="s4">&quot;cyan&quot;</span><span class="s2">,</span>
+        <span class="s1">justify</span><span class="s2">=</span><span class="s4">&quot;right&quot;</span><span class="s2">,</span>
+        <span class="s1">no_wrap</span><span class="s2">=</span><span class="s0">True</span><span class="s2">,</span>
+    <span class="s2">)</span>
+    <span class="s1">example_table</span><span class="s2">.</span><span class="s1">add_column</span><span class="s2">(</span>
+        <span class="s4">&quot;[magenta]Box Office&quot;</span><span class="s2">,</span>
+        <span class="s1">style</span><span class="s2">=</span><span class="s4">&quot;magenta&quot;</span><span class="s2">,</span>
+        <span class="s1">justify</span><span class="s2">=</span><span class="s4">&quot;right&quot;</span><span class="s2">,</span>
+        <span class="s1">no_wrap</span><span class="s2">=</span><span class="s0">True</span><span class="s2">,</span>
+    <span class="s2">)</span>
+    <span class="s1">example_table</span><span class="s2">.</span><span class="s1">add_row</span><span class="s2">(</span>
+        <span class="s4">&quot;Dec 20, 2019&quot;</span><span class="s2">,</span>
+        <span class="s4">&quot;Star Wars: The Rise of Skywalker&quot;</span><span class="s2">,</span>
+        <span class="s4">&quot;$275,000,000&quot;</span><span class="s2">,</span>
+        <span class="s4">&quot;$375,126,118&quot;</span><span class="s2">,</span>
+    <span class="s2">)</span>
+    <span class="s1">example_table</span><span class="s2">.</span><span class="s1">add_row</span><span class="s2">(</span>
+        <span class="s4">&quot;May 25, 2018&quot;</span><span class="s2">,</span>
+        <span class="s4">&quot;[b]Solo[/]: A Star Wars Story&quot;</span><span class="s2">,</span>
+        <span class="s4">&quot;$275,000,000&quot;</span><span class="s2">,</span>
+        <span class="s4">&quot;$393,151,347&quot;</span><span class="s2">,</span>
+    <span class="s2">)</span>
+    <span class="s1">example_table</span><span class="s2">.</span><span class="s1">add_row</span><span class="s2">(</span>
+        <span class="s4">&quot;Dec 15, 2017&quot;</span><span class="s2">,</span>
+        <span class="s4">&quot;Star Wars Ep. VIII: The Last Jedi&quot;</span><span class="s2">,</span>
+        <span class="s4">&quot;$262,000,000&quot;</span><span class="s2">,</span>
+        <span class="s4">&quot;[bold]$1,332,539,889[/bold]&quot;</span><span class="s2">,</span>
+    <span class="s2">)</span>
+    <span class="s1">example_table</span><span class="s2">.</span><span class="s1">add_row</span><span class="s2">(</span>
+        <span class="s4">&quot;May 19, 1999&quot;</span><span class="s2">,</span>
+        <span class="s4">&quot;Star Wars Ep. [b]I[/b]: [i]The phantom Menace&quot;</span><span class="s2">,</span>
+        <span class="s4">&quot;$115,000,000&quot;</span><span class="s2">,</span>
+        <span class="s4">&quot;$1,027,044,677&quot;</span><span class="s2">,</span>
+    <span class="s2">)</span>
+
+    <span class="s1">table</span><span class="s2">.</span><span class="s1">add_row</span><span class="s2">(</span><span class="s4">&quot;Tables&quot;</span><span class="s2">, </span><span class="s1">example_table</span><span class="s2">)</span>
+
+    <span class="s1">code </span><span class="s2">= </span><span class="s4">'''</span><span class="s0">\ 
+</span><span class="s4">def iter_last(values: Iterable[T]) -&gt; Iterable[Tuple[bool, T]]: 
+    &quot;&quot;&quot;Iterate and generate a tuple with a flag for last value.&quot;&quot;&quot; 
+    iter_values = iter(values) 
+    try: 
+        previous_value = next(iter_values) 
+    except StopIteration: 
+        return 
+    for value in iter_values: 
+        yield False, previous_value 
+        previous_value = value 
+    yield True, previous_value'''</span>
+
+    <span class="s1">pretty_data </span><span class="s2">= {</span>
+        <span class="s4">&quot;foo&quot;</span><span class="s2">: [</span>
+            <span class="s3">3.1427</span><span class="s2">,</span>
+            <span class="s2">(</span>
+                <span class="s4">&quot;Paul Atreides&quot;</span><span class="s2">,</span>
+                <span class="s4">&quot;Vladimir Harkonnen&quot;</span><span class="s2">,</span>
+                <span class="s4">&quot;Thufir Hawat&quot;</span><span class="s2">,</span>
+            <span class="s2">),</span>
+        <span class="s2">],</span>
+        <span class="s4">&quot;atomic&quot;</span><span class="s2">: (</span><span class="s0">False</span><span class="s2">, </span><span class="s0">True</span><span class="s2">, </span><span class="s0">None</span><span class="s2">),</span>
+    <span class="s2">}</span>
+    <span class="s1">table</span><span class="s2">.</span><span class="s1">add_row</span><span class="s2">(</span>
+        <span class="s4">&quot;Syntax</span><span class="s0">\n</span><span class="s4">highlighting</span><span class="s0">\n</span><span class="s4">&amp;</span><span class="s0">\n</span><span class="s4">pretty</span><span class="s0">\n</span><span class="s4">printing&quot;</span><span class="s2">,</span>
+        <span class="s1">comparison</span><span class="s2">(</span>
+            <span class="s1">Syntax</span><span class="s2">(</span><span class="s1">code</span><span class="s2">, </span><span class="s4">&quot;python3&quot;</span><span class="s2">, </span><span class="s1">line_numbers</span><span class="s2">=</span><span class="s0">True</span><span class="s2">, </span><span class="s1">indent_guides</span><span class="s2">=</span><span class="s0">True</span><span class="s2">),</span>
+            <span class="s1">Pretty</span><span class="s2">(</span><span class="s1">pretty_data</span><span class="s2">, </span><span class="s1">indent_guides</span><span class="s2">=</span><span class="s0">True</span><span class="s2">),</span>
+        <span class="s2">),</span>
+    <span class="s2">)</span>
+
+    <span class="s1">markdown_example </span><span class="s2">= </span><span class="s4">&quot;&quot;&quot;</span><span class="s0">\ 
+</span><span class="s4"># Markdown 
+ 
+Supports much of the *markdown* __syntax__! 
+ 
+- Headers 
+- Basic formatting: **bold**, *italic*, `code` 
+- Block quotes 
+- Lists, and more... 
+    &quot;&quot;&quot;</span>
+    <span class="s1">table</span><span class="s2">.</span><span class="s1">add_row</span><span class="s2">(</span>
+        <span class="s4">&quot;Markdown&quot;</span><span class="s2">, </span><span class="s1">comparison</span><span class="s2">(</span><span class="s4">&quot;[cyan]&quot; </span><span class="s2">+ </span><span class="s1">markdown_example</span><span class="s2">, </span><span class="s1">Markdown</span><span class="s2">(</span><span class="s1">markdown_example</span><span class="s2">))</span>
+    <span class="s2">)</span>
+
+    <span class="s1">table</span><span class="s2">.</span><span class="s1">add_row</span><span class="s2">(</span>
+        <span class="s4">&quot;+more!&quot;</span><span class="s2">,</span>
+        <span class="s4">&quot;&quot;&quot;Progress bars, columns, styled logging handler, tracebacks, etc...&quot;&quot;&quot;</span><span class="s2">,</span>
+    <span class="s2">)</span>
+    <span class="s0">return </span><span class="s1">table</span>
+
+
+<span class="s0">if </span><span class="s1">__name__ </span><span class="s2">== </span><span class="s4">&quot;__main__&quot;</span><span class="s2">:  </span><span class="s6"># pragma: no cover</span>
+    <span class="s1">console </span><span class="s2">= </span><span class="s1">Console</span><span class="s2">(</span>
+        <span class="s1">file</span><span class="s2">=</span><span class="s1">io</span><span class="s2">.</span><span class="s1">StringIO</span><span class="s2">(),</span>
+        <span class="s1">force_terminal</span><span class="s2">=</span><span class="s0">True</span><span class="s2">,</span>
+    <span class="s2">)</span>
+    <span class="s1">test_card </span><span class="s2">= </span><span class="s1">make_test_card</span><span class="s2">()</span>
+
+    <span class="s6"># Print once to warm cache</span>
+    <span class="s1">start </span><span class="s2">= </span><span class="s1">process_time</span><span class="s2">()</span>
+    <span class="s1">console</span><span class="s2">.</span><span class="s1">print</span><span class="s2">(</span><span class="s1">test_card</span><span class="s2">)</span>
+    <span class="s1">pre_cache_taken </span><span class="s2">= </span><span class="s1">round</span><span class="s2">((</span><span class="s1">process_time</span><span class="s2">() - </span><span class="s1">start</span><span class="s2">) * </span><span class="s3">1000.0</span><span class="s2">, </span><span class="s3">1</span><span class="s2">)</span>
+
+    <span class="s1">console</span><span class="s2">.</span><span class="s1">file </span><span class="s2">= </span><span class="s1">io</span><span class="s2">.</span><span class="s1">StringIO</span><span class="s2">()</span>
+
+    <span class="s1">start </span><span class="s2">= </span><span class="s1">process_time</span><span class="s2">()</span>
+    <span class="s1">console</span><span class="s2">.</span><span class="s1">print</span><span class="s2">(</span><span class="s1">test_card</span><span class="s2">)</span>
+    <span class="s1">taken </span><span class="s2">= </span><span class="s1">round</span><span class="s2">((</span><span class="s1">process_time</span><span class="s2">() - </span><span class="s1">start</span><span class="s2">) * </span><span class="s3">1000.0</span><span class="s2">, </span><span class="s3">1</span><span class="s2">)</span>
+
+    <span class="s1">c </span><span class="s2">= </span><span class="s1">Console</span><span class="s2">(</span><span class="s1">record</span><span class="s2">=</span><span class="s0">True</span><span class="s2">)</span>
+    <span class="s1">c</span><span class="s2">.</span><span class="s1">print</span><span class="s2">(</span><span class="s1">test_card</span><span class="s2">)</span>
+
+    <span class="s1">print</span><span class="s2">(</span><span class="s4">f&quot;rendered in </span><span class="s0">{</span><span class="s1">pre_cache_taken</span><span class="s0">}</span><span class="s4">ms (cold cache)&quot;</span><span class="s2">)</span>
+    <span class="s1">print</span><span class="s2">(</span><span class="s4">f&quot;rendered in </span><span class="s0">{</span><span class="s1">taken</span><span class="s0">}</span><span class="s4">ms (warm cache)&quot;</span><span class="s2">)</span>
+
+    <span class="s0">from </span><span class="s1">pip</span><span class="s2">.</span><span class="s1">_vendor</span><span class="s2">.</span><span class="s1">rich</span><span class="s2">.</span><span class="s1">panel </span><span class="s0">import </span><span class="s1">Panel</span>
+
+    <span class="s1">console </span><span class="s2">= </span><span class="s1">Console</span><span class="s2">()</span>
+
+    <span class="s1">sponsor_message </span><span class="s2">= </span><span class="s1">Table</span><span class="s2">.</span><span class="s1">grid</span><span class="s2">(</span><span class="s1">padding</span><span class="s2">=</span><span class="s3">1</span><span class="s2">)</span>
+    <span class="s1">sponsor_message</span><span class="s2">.</span><span class="s1">add_column</span><span class="s2">(</span><span class="s1">style</span><span class="s2">=</span><span class="s4">&quot;green&quot;</span><span class="s2">, </span><span class="s1">justify</span><span class="s2">=</span><span class="s4">&quot;right&quot;</span><span class="s2">)</span>
+    <span class="s1">sponsor_message</span><span class="s2">.</span><span class="s1">add_column</span><span class="s2">(</span><span class="s1">no_wrap</span><span class="s2">=</span><span class="s0">True</span><span class="s2">)</span>
+
+    <span class="s1">sponsor_message</span><span class="s2">.</span><span class="s1">add_row</span><span class="s2">(</span>
+        <span class="s4">&quot;Textualize&quot;</span><span class="s2">,</span>
+        <span class="s4">&quot;[u blue link=https://github.com/textualize]https://github.com/textualize&quot;</span><span class="s2">,</span>
+    <span class="s2">)</span>
+    <span class="s1">sponsor_message</span><span class="s2">.</span><span class="s1">add_row</span><span class="s2">(</span>
+        <span class="s4">&quot;Twitter&quot;</span><span class="s2">,</span>
+        <span class="s4">&quot;[u blue link=https://twitter.com/willmcgugan]https://twitter.com/willmcgugan&quot;</span><span class="s2">,</span>
+    <span class="s2">)</span>
+
+    <span class="s1">intro_message </span><span class="s2">= </span><span class="s1">Text</span><span class="s2">.</span><span class="s1">from_markup</span><span class="s2">(</span>
+        <span class="s4">&quot;&quot;&quot;</span><span class="s0">\ 
+</span><span class="s4">We hope you enjoy using Rich! 
+ 
+Rich is maintained with [red]:heart:[/] by [link=https://www.textualize.io]Textualize.io[/] 
+ 
+- Will McGugan&quot;&quot;&quot;</span>
+    <span class="s2">)</span>
+
+    <span class="s1">message </span><span class="s2">= </span><span class="s1">Table</span><span class="s2">.</span><span class="s1">grid</span><span class="s2">(</span><span class="s1">padding</span><span class="s2">=</span><span class="s3">2</span><span class="s2">)</span>
+    <span class="s1">message</span><span class="s2">.</span><span class="s1">add_column</span><span class="s2">()</span>
+    <span class="s1">message</span><span class="s2">.</span><span class="s1">add_column</span><span class="s2">(</span><span class="s1">no_wrap</span><span class="s2">=</span><span class="s0">True</span><span class="s2">)</span>
+    <span class="s1">message</span><span class="s2">.</span><span class="s1">add_row</span><span class="s2">(</span><span class="s1">intro_message</span><span class="s2">, </span><span class="s1">sponsor_message</span><span class="s2">)</span>
+
+    <span class="s1">console</span><span class="s2">.</span><span class="s1">print</span><span class="s2">(</span>
+        <span class="s1">Panel</span><span class="s2">.</span><span class="s1">fit</span><span class="s2">(</span>
+            <span class="s1">message</span><span class="s2">,</span>
+            <span class="s1">box</span><span class="s2">=</span><span class="s1">box</span><span class="s2">.</span><span class="s1">ROUNDED</span><span class="s2">,</span>
+            <span class="s1">padding</span><span class="s2">=(</span><span class="s3">1</span><span class="s2">, </span><span class="s3">2</span><span class="s2">),</span>
+            <span class="s1">title</span><span class="s2">=</span><span class="s4">&quot;[b red]Thanks for trying out Rich!&quot;</span><span class="s2">,</span>
+            <span class="s1">border_style</span><span class="s2">=</span><span class="s4">&quot;bright_blue&quot;</span><span class="s2">,</span>
+        <span class="s2">),</span>
+        <span class="s1">justify</span><span class="s2">=</span><span class="s4">&quot;center&quot;</span><span class="s2">,</span>
+    <span class="s2">)</span>
+</pre>
+</body>
+</html>

@@ -32,6 +32,22 @@ MAZE = [
 ]
 
 class Player:
+    """
+    Represents a player in a maze game. The Player object maintains its position,
+    movement logic, collision detection with walls, and rendering on the screen.
+
+    The starting position and movement of the player are initialized during object
+    creation. The class allows resetting the player to its starting position,
+    updating its position based on movement, and rendering the player on-screen.
+
+    Attributes:
+    ----------
+    :ivar start_x: The starting x-coordinate of the player.
+    :ivar start_y: The starting y-coordinate of the player.
+    :ivar rect: The player's rectangular shape represented as a `pygame.Rect` object.
+    :ivar dx: The distance the player moves horizontally per update.
+    :ivar dy: The distance the player moves vertically per update.
+    """
     def __init__(self, x, y):
         self.start_x = x
         self.start_y = y
@@ -63,6 +79,27 @@ class Player:
         pygame.draw.circle(screen, YELLOW, self.rect.center, TILE_SIZE // 2)
 
 class Ghost:
+    """
+    Represents a Ghost character in the game.
+
+    Manages the behavior and attributes of a ghost, such as its
+    position, movement, and interactions with walls, the player,
+    and the maze. Handles the ghost's color-dependent logic and
+    its response within the game environment.
+
+    :ivar start_x: Initial x-coordinate of the ghost.
+    :type start_x: int
+    :ivar start_y: Initial y-coordinate of the ghost.
+    :type start_y: int
+    :ivar rect: The rectangular area representing the ghost's position
+        and size on the screen.
+    :type rect: pygame.Rect
+    :ivar direction: The current movement direction of the ghost as a
+        tuple of x and y deltas.
+    :type direction: tuple[int, int]
+    :ivar color: The color of the ghost, affecting its behavior.
+    :type color: tuple[int, int, int]
+    """
     def __init__(self, x, y, color=RED):
         self.start_x = x
         self.start_y = y
@@ -104,6 +141,18 @@ class Ghost:
         pygame.draw.rect(screen, self.color, self.rect)
 
 class Dot:
+    """
+    Represents a collectible dot in a game.
+
+    This class is designed to represent a dot that can be consumed by
+    a player during gameplay. Each dot has a position on the game screen
+    and can be drawn or marked as eaten when collected.
+
+    :ivar rect: The rectangular area defining the dot's position and size.
+    :type rect: pygame.Rect
+    :ivar eaten: Indicates whether the dot has been consumed.
+    :type eaten: bool
+    """
     def __init__(self, x, y):
         self.rect = pygame.Rect(x + TILE_SIZE//4, y + TILE_SIZE//4, TILE_SIZE//2, TILE_SIZE//2)
         self.eaten = False
@@ -113,6 +162,35 @@ class Dot:
             pygame.draw.circle(screen, GREEN, self.rect.center, 4)
 
 class Game:
+    """
+    Represents the main game logic for Pacman.
+
+    Handles the initialization, gameplay logic, events, rendering,
+    and overall functionality of the Pacman game. This class manages
+    the player, ghosts, maze, dots, and game state such as the score,
+    lives, and game over status.
+
+    :ivar screen: The game window surface where elements are drawn.
+    :type screen: pygame.Surface
+    :ivar clock: Controls the frame rate of the game.
+    :type clock: pygame.time.Clock
+    :ivar maze: The layout of the game maze, defined as a 2D list.
+    :type maze: list[list[str]]
+    :ivar player: The player character in the game (Pacman).
+    :type player: Player
+    :ivar ghosts: A list of ghost characters in the game.
+    :type ghosts: list[Ghost]
+    :ivar dots: A collection of all dots present in the maze.
+    :type dots: list[Dot]
+    :ivar score: The current game score.
+    :type score: int
+    :ivar font: The font used to render text on the screen.
+    :type font: pygame.font.Font
+    :ivar game_over: Indicates whether the game is over.
+    :type game_over: bool
+    :ivar lives: The number of lives remaining for the player.
+    :type lives: int
+    """
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -132,7 +210,8 @@ class Game:
         for ghost in self.ghosts:
             ghost.reset()
 
-    def create_dots(self):
+    def create_dots(self) -> list[Dot]:
+
         dots = []
         for row_index, row in enumerate(self.maze):
             for col_index, cell in enumerate(row):
