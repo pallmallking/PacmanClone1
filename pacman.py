@@ -28,6 +28,50 @@ POWER_PELLET_DURATION = 100  # frames
 GHOST_SCORE = 200
 POWER_PELLET_SCORE = 50
 DOT_SCORE = 10
+FRUIT_SCORE = 100
+
+class Fruit:
+    """
+    Represents a bonus fruit that appears occasionally for extra points.
+    
+    :ivar rect: The rectangular area defining the fruit's position and size.
+    :type rect: pygame.Rect
+    :ivar eaten: Indicates whether the fruit has been consumed.
+    :type eaten: bool
+    :ivar spawn_timer: Timer for fruit appearance.
+    :type spawn_timer: int
+    :ivar visible: Whether the fruit is currently visible.
+    :type visible: bool
+    :ivar fruit_type: Type of fruit (affects appearance and score).
+    :type fruit_type: int
+    """
+    def __init__(self, x, y):
+        self.rect = pygame.Rect(x + TILE_SIZE//4, y + TILE_SIZE//4, TILE_SIZE//2, TILE_SIZE//2)
+        self.eaten = False
+        self.spawn_timer = 0
+        self.visible = False
+        self.fruit_type = 0  # 0=cherry, 1=strawberry, 2=orange
+        
+    def update(self):
+        """Update fruit visibility and spawn timing"""
+        if not self.eaten:
+            self.spawn_timer += 1
+            # Appear for limited time
+            if 300 < self.spawn_timer < 500:  # Visible for ~10 seconds
+                self.visible = True
+            else:
+                self.visible = False
+                if self.spawn_timer > 1000:  # Reset after ~50 seconds
+                    self.spawn_timer = 0
+                    self.fruit_type = (self.fruit_type + 1) % 3
+
+    def draw(self, screen):
+        if not self.eaten and self.visible:
+            # Draw different fruit types
+            colors = [RED, PINK, ORANGE]  # Cherry, Strawberry, Orange
+            pygame.draw.circle(screen, colors[self.fruit_type], self.rect.center, 6)
+            # Add highlight
+            pygame.draw.circle(screen, WHITE, (self.rect.center[0]-2, self.rect.center[1]-2), 2)
 
 class SoundManager:
     """
@@ -489,6 +533,12 @@ class Game:
     :type power_mode: bool
     :ivar ghost_combo: Multiplier for ghost eating scoring.
     :type ghost_combo: int
+    :ivar bonus_fruit: The bonus fruit that occasionally appears.
+    :type bonus_fruit: Fruit
+    :ivar show_menu: Whether to show the start menu.
+    :type show_menu: bool
+    :ivar paused: Whether the game is paused.
+    :type paused: bool
     """
     def __init__(self):
         pygame.init()
@@ -506,15 +556,19 @@ class Game:
         ]
         self.dots = self.create_dots()
         self.power_pellets = self.create_power_pellets()
+        self.bonus_fruit = Fruit(14 * TILE_SIZE, 16 * TILE_SIZE)  # Center of maze
         self.score = 0
         self.font = pygame.font.SysFont(None, 36)
         self.small_font = pygame.font.SysFont(None, 24)
+        self.large_font = pygame.font.SysFont(None, 48)
         self.game_over = False
         self.lives = 3
         self.level = 1
         self.game_won = False
         self.power_mode = False
         self.ghost_combo = 1
+        self.show_menu = True
+        self.paused = False
 
     def reset_positions(self):
         self.player.reset()
@@ -541,6 +595,7 @@ class Game:
         self.level += 1
         self.dots = self.create_dots()
         self.power_pellets = self.create_power_pellets()
+        self.bonus_fruit = Fruit(14 * TILE_SIZE, 16 * TILE_SIZE)
         self.reset_positions()
         self.game_won = False
         # Increase difficulty slightly by increasing game speed
@@ -559,14 +614,33 @@ class Game:
 
     def handle_events(self):
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:
-            self.player.set_direction(-MOVE_SPEED, 0)
-        elif keys[pygame.K_RIGHT]:
-            self.player.set_direction(MOVE_SPEED, 0)
-        elif keys[pygame.K_UP]:
-            self.player.set_direction(0, -MOVE_SPEED)
-        elif keys[pygame.K_DOWN]:
-            self.player.set_direction(0, MOVE_SPEED)
+        
+        # Menu controls
+        if self.show_menu:
+            if keys[pygame.K_SPACE]:
+                self.show_menu = False
+            return
+        
+        # Pause toggle
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p and not self.game_over and not self.game_won:
+                    self.paused = not self.paused
+        
+        # Game controls (only when not paused)
+        if not self.paused:
+            if keys[pygame.K_LEFT]:
+                self.player.set_direction(-MOVE_SPEED, 0)
+            elif keys[pygame.K_RIGHT]:
+                self.player.set_direction(MOVE_SPEED, 0)
+            elif keys[pygame.K_UP]:
+                self.player.set_direction(0, -MOVE_SPEED)
+            elif keys[pygame.K_DOWN]:
+                self.player.set_direction(0, MOVE_SPEED)
+            
         if (self.game_over or self.game_won) and keys[pygame.K_r]:
             self.__init__()
 
@@ -592,6 +666,16 @@ class Game:
                 # Make all ghosts vulnerable
                 for ghost in self.ghosts:
                     ghost.make_vulnerable()
+    
+    def update_bonus_fruit(self):
+        """Update bonus fruit and check for collection"""
+        self.bonus_fruit.update()
+        if (not self.bonus_fruit.eaten and self.bonus_fruit.visible and 
+            self.player.rect.colliderect(self.bonus_fruit.rect)):
+            self.bonus_fruit.eaten = True
+            fruit_scores = [100, 300, 500]  # Cherry, Strawberry, Orange
+            self.score += fruit_scores[self.bonus_fruit.fruit_type]
+            self.sound_manager.play('power_pellet')  # Use power pellet sound for now
 
     def check_collisions(self):
         for ghost in self.ghosts:
@@ -641,6 +725,52 @@ class Game:
                 self.screen.blit(next_text, (WIDTH//2 - 150, HEIGHT//2 - 20))
                 self.screen.blit(continue_text, (WIDTH//2 - 80, HEIGHT//2 + 20))
 
+    def draw_menu(self):
+        """Draw the start menu"""
+        self.screen.fill(BLACK)
+        
+        # Title
+        title_text = self.large_font.render("PACMAN CLONE", True, YELLOW)
+        subtitle_text = self.font.render("Enhanced Edition", True, WHITE)
+        self.screen.blit(title_text, (WIDTH//2 - 150, HEIGHT//3))
+        self.screen.blit(subtitle_text, (WIDTH//2 - 80, HEIGHT//3 + 60))
+        
+        # Instructions
+        instructions = [
+            "Arrow Keys - Move Pacman",
+            "P - Pause Game",
+            "R - Restart (when game over)",
+            "",
+            "Collect dots and power pellets!",
+            "Eat ghosts when they're blue!",
+            "Complete levels to win!",
+            "",
+            "Press SPACE to Start"
+        ]
+        
+        y_offset = HEIGHT//2
+        for instruction in instructions:
+            if instruction:  # Skip empty lines
+                text = self.small_font.render(instruction, True, WHITE)
+                x_pos = WIDTH//2 - text.get_width()//2
+                self.screen.blit(text, (x_pos, y_offset))
+            y_offset += 25
+    
+    def draw_pause_overlay(self):
+        """Draw pause overlay"""
+        # Semi-transparent overlay
+        overlay = pygame.Surface((WIDTH, HEIGHT))
+        overlay.set_alpha(128)
+        overlay.fill(BLACK)
+        self.screen.blit(overlay, (0, 0))
+        
+        # Pause text
+        pause_text = self.large_font.render("PAUSED", True, YELLOW)
+        resume_text = self.font.render("Press P to Resume", True, WHITE)
+        
+        self.screen.blit(pause_text, (WIDTH//2 - 80, HEIGHT//2 - 40))
+        self.screen.blit(resume_text, (WIDTH//2 - 100, HEIGHT//2 + 20))
+
     def run(self):
         while True:
             for event in pygame.event.get():
@@ -649,8 +779,15 @@ class Game:
                     sys.exit()
 
             self.handle_events()
+            
+            # Show menu
+            if self.show_menu:
+                self.draw_menu()
+                pygame.display.flip()
+                self.clock.tick(FPS)
+                continue
 
-            if not self.game_over:
+            if not self.game_over and not self.paused:
                 if self.game_won:
                     # Handle level progression
                     keys = pygame.key.get_pressed()
@@ -664,6 +801,7 @@ class Game:
                     self.player.move(self.maze)
                     self.update_dots()
                     self.update_power_pellets()
+                    self.update_bonus_fruit()
                     for ghost in self.ghosts:
                         ghost.move(self.maze, self.player.rect.center, self.player.last_direction)
                     self.check_collisions()
@@ -677,6 +815,9 @@ class Game:
                 dot.draw(self.screen)
             for pellet in self.power_pellets:
                 pellet.draw(self.screen)
+            
+            # Draw bonus fruit
+            self.bonus_fruit.draw(self.screen)
                 
             # Draw game entities
             self.player.draw(self.screen)
@@ -684,6 +825,11 @@ class Game:
                 ghost.draw(self.screen)
                 
             self.draw_score()
+            
+            # Draw pause overlay if paused
+            if self.paused:
+                self.draw_pause_overlay()
+            
             pygame.display.flip()
             self.clock.tick(FPS)
 
