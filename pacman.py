@@ -1,6 +1,7 @@
 # pacman_game.py
 
 import pygame
+from pygame.locals import *
 import random
 import sys
 
